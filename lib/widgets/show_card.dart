@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:watchlog/models/show.dart';
+import 'package:watchlog/screens/details_screen.dart';
 import 'package:watchlog/services/database_service.dart';
 
 class ShowCard extends StatefulWidget{
@@ -20,7 +21,19 @@ class _ShowCard extends State<ShowCard> {
     final isFavorite = database.isFavorite(show.id);
     final isWatchlist = database.isWatchlist(show.id);
 
-    return Container(
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DetailsScreen(show: show),
+          )
+        ).then((x) {
+          setState(() {});
+        });
+      },
+      child: Container(
       width: 252,
       margin: const EdgeInsets.only(right: 14),
       padding: const EdgeInsets.all(10),
@@ -166,6 +179,7 @@ class _ShowCard extends State<ShowCard> {
           )
         ],
       ),
+    ),
     );
   }
 }

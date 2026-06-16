@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:watchlog/models/show.dart';
+import 'package:watchlog/services/database_service.dart';
 
 class TVMazeService {
   final List<Show> _shows = [];
+  final database = DatabaseService.instance;
   static final TVMazeService instance = TVMazeService._internal();
+
   TVMazeService._internal();
   factory TVMazeService() => instance;
 
@@ -15,15 +18,14 @@ class TVMazeService {
 
     final futures = List.generate(8, (page) async {
       final response = await http.get(Uri.parse('https://api.tvmaze.com/shows?page=$page'));
-
       if (response.statusCode != 200) return <Show>[];
 
       final List<dynamic> data = jsonDecode(response.body);
 
       return data.map<Show>((jsondata) => Show.extractJson(jsondata)).toList();});
 
-    final results = await Future.wait<List<Show>>(futures);
-    _shows.addAll(results.expand((show) => show));
+      final results = await Future.wait<List<Show>>(futures);
+      _shows.addAll(results.expand((show) => show));
   }
 
   Future<List<Show>> getPopularShows() async {
@@ -36,7 +38,8 @@ class TVMazeService {
       return (b.rating ?? 0).compareTo(a.rating ?? 0);
     });
 
-    final selectedShows = sorted.take(limit).toList();
+    final hidden = database.hiddenShows;
+    final selectedShows = sorted.where((show) => !hidden.contains(show.id)).take(limit).toList();
     final result = <Show>[];
 
     for (final show in selectedShows) {

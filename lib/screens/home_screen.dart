@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:watchlog/models/show.dart';
 import 'package:watchlog/services/tvmaze_service.dart';
 import 'package:watchlog/widgets/show_card.dart';
 

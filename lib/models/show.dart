@@ -15,6 +15,8 @@ class Show {
   final int? season;
   final int? episode;
 
+  final String? status;
+
   Show({
     required this.id,
     required this.name,
@@ -29,14 +31,16 @@ class Show {
     this.airtime,
     this.season,
     this.episode,
+    this.status,
   });
 
   Show copyWith({
     int? seasons,
     int? episodes,
-    final String? airtime,
-    final int? season,
-    final int? episode,
+    String? airtime,
+    int? season,
+    int? episode,
+    String? status,
   }) {
     return Show(
       id: id,
@@ -52,6 +56,7 @@ class Show {
       airtime: airtime ?? this.airtime,
       season: season ?? this.season,
       episode: episode ?? this.episode,
+      status: status ?? this.status,
     );
   }
 
@@ -65,6 +70,7 @@ class Show {
       rating: json['rating']?['average']?.toDouble(),
       genres: json['genres'] ?? [],
       weight: json['weight'] ?? 0,
+      status: json['status'],
     );
   }
 }
