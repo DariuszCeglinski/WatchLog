@@ -92,6 +92,51 @@ class TVMazeService {
       .take(limit).toList();
   }
 
+  Future<List<Show>> getShowsFromIds(List<int> idList) async {
+    final result = <Show>[];
+    for (final id in idList) {
+      final index = _shows.indexWhere((show) => show.id == id);
+
+      if (index != -1) result.add(await addShowInfo(_shows[index]));
+    }
+
+    return result;
+  }
+
+  Future<List<Show>> getRatedShows() async {
+    final ids = database.reviews.entries.where((entry) {
+      final review = Map<String, dynamic>.from(entry.value);
+
+      return review['rating'] != null;
+    }).map((entry) => int.parse(entry.key)).toList();
+
+    return getShowsFromIds(ids);
+  }
+
+  Future<List<Show>> getNotedShows() async {
+    final ids = database.reviews.entries.where((entry) {
+      final review = Map<String, dynamic>.from(entry.value);
+
+      final hasNote = review['note'] != null && review['note'].toString().trim().isNotEmpty;
+
+      return hasNote;
+    }).map((entry) => int.parse(entry.key)).toList();
+
+    return getShowsFromIds(ids);
+  }
+
+  Future<List<Show>> getWatchedShows() async {
+    return getShowsFromIds(database.watched);
+  }
+
+  Future<List<Show>> getFavoriteShows() async {
+    return getShowsFromIds(database.favorites);
+  }
+
+  Future<List<Show>> getIgnoredShows() async {
+    return getShowsFromIds(database.ignored);
+  }
+
   Future<Show> addShowInfo(Show show) async {
     try {
       final response = await http.get(Uri.parse('https://api.tvmaze.com/shows/${show.id}/episodes'));

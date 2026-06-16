@@ -5,8 +5,9 @@ import 'package:watchlog/services/database_service.dart';
 
 class ShowCard extends StatefulWidget{
   final Show show;
+  final VoidCallback? onChanged;
 
-  const ShowCard({ super.key, required this.show });
+  const ShowCard({ super.key, required this.show, this.onChanged});
 
   @override
   State<StatefulWidget> createState() => _ShowCard();
@@ -31,6 +32,7 @@ class _ShowCard extends State<ShowCard> {
           )
         ).then((x) {
           setState(() {});
+          widget.onChanged?.call();
         });
       },
       child: Container(
@@ -149,6 +151,7 @@ class _ShowCard extends State<ShowCard> {
                         }
 
                         setState(() {});
+                        widget.onChanged?.call();
                       },
                       child: Icon(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -164,6 +167,7 @@ class _ShowCard extends State<ShowCard> {
                         } else {
                           await database.addToWatchlist(show.id);
                         }
+
                         setState(() {});
                       },
                       child: Icon(
