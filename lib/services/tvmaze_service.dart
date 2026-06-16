@@ -92,6 +92,45 @@ class TVMazeService {
       .take(limit).toList();
   }
 
+  Future<String?> getFavoriteGenre() async {
+    final Map<String, int> genreScore = {};
+    final watchedShows = await getWatchedShows();
+
+    for(final show in watchedShows){
+      for(final genre in show.genres){
+        genreScore[genre] = (genreScore[genre] ?? 0) + 1;
+      }
+    }
+
+    final favoriteShows = await getFavoriteShows();
+
+    for(final show in favoriteShows){
+      for(final genre in show.genres){
+        genreScore[genre] = (genreScore[genre] ?? 0) + 3;
+      }
+    }
+    if(genreScore.isEmpty) return null;
+    genreScore.entries.toList().sort((a,b)=>b.value.compareTo(a.value));
+
+    return genreScore.entries.first.key;
+  }
+
+  Future<List<Show>> getRecommendedByGenre() async {
+    final genre = await getFavoriteGenre();
+    if(genre == null) return [];
+
+    final shows = _shows.where((show) => show.genres.contains(genre))
+        .where((show)=> !database.hiddenShows.contains(show.id)).take(limit).toList();
+
+    final result = <Show>[];
+
+    for(final show in shows){
+      result.add( await addShowInfo(show));
+    }
+
+    return result;
+  }
+
   Future<List<Show>> getShowsFromIds(List<int> idList) async {
     final result = <Show>[];
     for (final id in idList) {
@@ -135,6 +174,10 @@ class TVMazeService {
 
   Future<List<Show>> getIgnoredShows() async {
     return getShowsFromIds(database.ignored);
+  }
+
+  Future<List<Show>> getWatchlistShows() async {
+    return getShowsFromIds(database.watchlist);
   }
 
   Future<Show> addShowInfo(Show show) async {

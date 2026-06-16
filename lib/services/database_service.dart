@@ -18,6 +18,13 @@ class DatabaseService {
       list.add(id);
       await userBox.put('favorites', list);
     }
+
+    final ignoredList = ignored;
+
+    if (ignoredList.contains(id)) {
+      ignoredList.remove(id);
+      await userBox.put('ignored', ignoredList);
+    }
   }
 
   Future<void> removeFavorite(int id) async {
@@ -50,6 +57,20 @@ class DatabaseService {
       list.add(id);
       await userBox.put('ignored', list);
     }
+
+    final watchlistList = watchlist;
+
+    if (watchlistList.contains(id)) {
+      watchlistList.remove(id);
+      await userBox.put('watchlist', watchlistList);
+    }
+
+    final favoritesList = favorites;
+
+    if (favoritesList.contains(id)) {
+      favoritesList.remove(id);
+      await userBox.put('favorites', favoritesList);
+    }
   }
 
   Future<void> removeIgnored(int id) async {
@@ -65,6 +86,20 @@ class DatabaseService {
     if (!list.contains(id)) {
       list.add(id);
       await userBox.put('watched', list);
+    }
+
+    final watchlistList = watchlist;
+
+    if (watchlistList.contains(id)) {
+      watchlistList.remove(id);
+      await userBox.put('watchlist', watchlistList);
+    }
+
+    final ignoredList = ignored;
+
+    if (ignoredList.contains(id)) {
+      ignoredList.remove(id);
+      await userBox.put('ignored', ignoredList);
     }
   }
 

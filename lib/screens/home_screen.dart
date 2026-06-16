@@ -57,6 +57,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           final shows = snapshot.data!;
 
+                          if (shows.isEmpty) {
+                            return const Center(child: Text('Brak odcinków wychodzących dzisiaj'));
+                          }
+
                           return ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: shows.length,
