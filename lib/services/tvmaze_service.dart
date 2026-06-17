@@ -176,6 +176,15 @@ class TVMazeService {
     return await Future.wait(shows.map(addShowInfo));
   }
 
+  Future<List<Show>> searchLibraryShows(String query) async {
+    if (query.trim().isEmpty) return [];
+
+    final ids = {...database.watched, ...database.favorites, ...database.watchlist, ...database.ignored,};
+    final shows = await getShowsFromIds(ids.toList());
+
+    return shows.where((show) {return show.name.toLowerCase().contains(query.toLowerCase());}).toList();
+  }
+
   Future<List<Show>> getWatchedShows() async {
     return getShowsFromIds(database.watched);
   }
@@ -204,7 +213,6 @@ class TVMazeService {
 
       return show.copyWith(seasons: seasonCount, episodes: episodes.length,);
     } catch (e) {
-      print(e);
       return show;
     }
   }

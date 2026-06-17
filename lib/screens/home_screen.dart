@@ -15,8 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   late Future<void> _initializeFuture;
 
-  List<Show> _searchResults = [];
-  bool _isSearching = false;
+  Future<List<Show>>? _searchFuture;
 
   @override
   void initState() {
@@ -24,9 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _initializeFuture = _service.initialize();
 
     _searchController.addListener(() {
-      setState(() {
-
-      });
+      setState(() {});
     });
   }
 
@@ -37,20 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _searchShows(String query) async {
-    if (query.trim().isEmpty) {
-      setState(() {
-        _isSearching = false;
-        _searchResults = [];
-      });
-
-      return;
-    }
-
-    final results = await _service.searchShows(query);
-
     setState(() {
-      _isSearching = true;
-      _searchResults = results;
+      if (query.trim().isEmpty) {
+        _searchFuture = null;
+      } else {
+        _searchFuture = _service.searchShows(query);
+      }
     });
   }
 
@@ -77,23 +66,36 @@ class _HomeScreenState extends State<HomeScreen> {
                         _searchController.clear();
 
                         setState(() {
-                          _isSearching = false;
-                          _searchResults = [];
+                          _searchFuture = null;
                         });
                       },
                     )
                 ],
               ),
               const SizedBox(height: 10),
-              if (_isSearching)
+              if (_searchFuture != null)
                 Expanded(
-                  child: ListView.separated(
-                    itemCount: _searchResults.length,
-                    itemBuilder: (context, index) {
-                      return ShowCard(show: _searchResults[index]);
+                  child: FutureBuilder<List<Show>>(
+                    future: _searchFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final shows = snapshot.data ?? [];
+
+                      if (shows.isEmpty) {
+                        return const Center(child: Text("Nie znaleziono seriali"),);
+                      }
+
+                      return ListView.separated(
+                        itemCount: shows.length,
+                        separatorBuilder: (context, index) => const SizedBox(height: 10),
+                        itemBuilder: (context, index) => ShowCard(show: shows[index]),
+                      );
                     },
-                    separatorBuilder: (context, index) => const SizedBox(height: 10),
-                ))
+                  ),
+                )
               else
                 Expanded(
                   child: ListView(
