@@ -1,9 +1,14 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:watchlog/screens/main_screen.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp();
+  await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
 
   await Hive.initFlutter();
   await Hive.openBox('user');

@@ -1,6 +1,8 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:hive_ce/hive.dart';
 
 class DatabaseService {
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static final DatabaseService instance = DatabaseService._internal();
   DatabaseService._internal();
 
@@ -14,10 +16,24 @@ class DatabaseService {
   List<String> get watchedEpisodes => List<String>.from(userBox.get('watchedEpisodes', defaultValue: []));
   List<String> get watchlistEpisodes => List<String>.from(userBox.get('watchlistEpisodes', defaultValue: []));
 
+  Future<void> logShowAction({ required int showId, required String action,
+  }) async {
+    print("FIREBASE EVENT: show_action -> $showId -> $action");
+    await analytics.logEvent(
+      name: 'show_action',
+      parameters: { 'show_id': showId, 'action': action },
+    );
+  }
+
   Future<void> addFavorite(int id) async {
     final list = favorites;
 
     if (!list.contains(id)) {
+      await logShowAction(
+        showId: id,
+        action: 'add_favorite',
+      );
+
       list.add(id);
       await userBox.put('favorites', list);
     }
@@ -34,6 +50,11 @@ class DatabaseService {
     final list = favorites;
     list.remove(id);
 
+    await logShowAction(
+      showId: id,
+      action: 'remove_favorite',
+    );
+
     await userBox.put('favorites', list);
   }
 
@@ -41,6 +62,11 @@ class DatabaseService {
     final list = watchlist;
 
     if (!list.contains(id)) {
+      await logShowAction(
+        showId: id,
+        action: 'add_to_watchlist',
+      );
+
       list.add(id);
       await userBox.put('watchlist', list);
     }
@@ -48,8 +74,13 @@ class DatabaseService {
 
   Future<void> removeFromWatchlist(int id) async {
     final list = watchlist;
-
     list.remove(id);
+
+    await logShowAction(
+      showId: id,
+      action: 'remove_from_watchlist',
+    );
+
     await userBox.put('watchlist', list);
   }
 
@@ -59,6 +90,11 @@ class DatabaseService {
     if (!list.contains(id)) {
       list.add(id);
       await userBox.put('ignored', list);
+
+      await logShowAction(
+        showId: id,
+        action: 'add_to_ignored',
+      );
     }
 
     final watchlistList = watchlist;
@@ -80,6 +116,11 @@ class DatabaseService {
     final list = ignored;
     list.remove(id);
 
+    await logShowAction(
+      showId: id,
+      action: 'remove_from_ignored',
+    );
+
     await userBox.put('ignored', list);
   }
 
@@ -87,6 +128,11 @@ class DatabaseService {
     final list = watched;
 
     if (!list.contains(id)) {
+      await logShowAction(
+        showId: id,
+        action: 'add_watched',
+      );
+
       list.add(id);
       await userBox.put('watched', list);
     }
@@ -135,6 +181,11 @@ class DatabaseService {
   Future<void> removeWatched(int id) async {
     final list = watched;
     list.remove(id);
+
+    await logShowAction(
+      showId: id,
+      action: 'remove_watched',
+    );
 
     await userBox.put('watched', list);
   }
