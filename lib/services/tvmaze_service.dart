@@ -164,6 +164,18 @@ class TVMazeService {
     return getShowsFromIds(ids);
   }
 
+  Future<List<Show>> searchShows(String query) async {
+    if (query.trim().isEmpty) return [];
+    final response = await http.get(Uri.parse('https://api.tvmaze.com/search/shows?q=${Uri.encodeComponent(query)}'));
+
+    if (response.statusCode != 200) return [];
+    final List<dynamic> data = jsonDecode(response.body);
+
+    final shows = data.map((item) => Show.extractJson(item['show'])).toList();
+
+    return await Future.wait(shows.map(addShowInfo));
+  }
+
   Future<List<Show>> getWatchedShows() async {
     return getShowsFromIds(database.watched);
   }

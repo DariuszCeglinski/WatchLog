@@ -37,6 +37,7 @@ class _ShowCard extends State<ShowCard> {
       },
       child: Container(
       width: 252,
+      height: 140,
       margin: const EdgeInsets.only(right: 14),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
