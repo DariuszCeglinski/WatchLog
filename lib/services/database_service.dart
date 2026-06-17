@@ -18,7 +18,6 @@ class DatabaseService {
 
   Future<void> logShowAction({ required int showId, required String action,
   }) async {
-    print("FIREBASE EVENT: show_action -> $showId -> $action");
     await analytics.logEvent(
       name: 'show_action',
       parameters: { 'show_id': showId, 'action': action },

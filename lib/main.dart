@@ -1,33 +1,26 @@
+import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:watchlog/screens/main_screen.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp();
-  await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+    await Firebase.initializeApp();
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
 
-  await Hive.initFlutter();
-  await Hive.openBox('user');
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-  final box = Hive.box('user');
-
-  if (!box.containsKey('favorites')) {
-    await box.put('favorites', <int>[]);
-  }
-
-  if (!box.containsKey('watchlist')) {
-    await box.put('watchlist', <int>[]);
-  }
-
-  if (!box.containsKey('ignoredGenres')) {
-    await box.put('ignoredGenres', <String>[]);
-  }
-
-  runApp(const MyApp());
+    await Hive.initFlutter();
+    await Hive.openBox('user');
+    runApp(const MyApp());
+  }, (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+  });
 }
 
 class MyApp extends StatelessWidget {
