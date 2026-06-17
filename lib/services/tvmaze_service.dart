@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:watchlog/models/episode.dart';
 import 'package:watchlog/models/show.dart';
 import 'package:watchlog/services/database_service.dart';
 
@@ -215,5 +216,35 @@ class TVMazeService {
     } catch (e) {
       return show;
     }
+  }
+
+  Future<List<Episode>> getEpisodes(int showId) async {
+    final response = await http.get(Uri.parse("https://api.tvmaze.com/shows/$showId/episodes"));
+
+    if (response.statusCode != 200) return [];
+    final List data = jsonDecode(response.body);
+
+    return data.map((body) => Episode.fromJson(body, showId)).toList();
+  }
+
+  Future<List<Episode>> getWatchlistEpisodes() async {
+    final result = <Episode>[];
+
+    for (final key in database.watchlistEpisodes) {
+      final parts = key.split('-');
+      if (parts.length != 2) continue;
+
+      final showId = int.parse(parts[0]);
+      final episodeNumber = int.parse(parts[1]);
+      final episodes = await getEpisodes(showId);
+
+      try {
+        final episode = episodes.firstWhere((e) => e.number == episodeNumber,);
+
+        result.add(episode);
+      } catch (_) {}
+    }
+
+    return result;
   }
 }

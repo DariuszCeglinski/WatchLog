@@ -11,6 +11,9 @@ class DatabaseService {
   List<int> get ignored => List<int>.from(userBox.get('ignored', defaultValue: []));
   List<int> get watched => List<int>.from(userBox.get('watched', defaultValue: []));
 
+  List<String> get watchedEpisodes => List<String>.from(userBox.get('watchedEpisodes', defaultValue: []));
+  List<String> get watchlistEpisodes => List<String>.from(userBox.get('watchlistEpisodes', defaultValue: []));
+
   Future<void> addFavorite(int id) async {
     final list = favorites;
 
@@ -101,6 +104,32 @@ class DatabaseService {
       ignoredList.remove(id);
       await userBox.put('ignored', ignoredList);
     }
+  }
+
+  Future<void> setEpisodeStatus(int showId, int epNumber, String status) async {
+    final key = "$showId-$epNumber";
+    final watched = watchedEpisodes;
+    final watchlist = watchlistEpisodes;
+
+    watched.remove(key);
+    watchlist.remove(key);
+
+    if (status == "watched") {
+      watched.add(key);
+    } else if (status == "watchlist") {
+      watchlist.add(key);
+    }
+
+    await userBox.put('watchedEpisodes', watched);
+    await userBox.put('watchlistEpisodes', watchlist);
+  }
+
+  String getEpisodeStatus(int showId, int epNumber) {
+    final key = "$showId-$epNumber";
+
+    if (watchedEpisodes.contains(key)) return "watched";
+    if (watchlistEpisodes.contains(key)) return "watchlist";
+    return "none";
   }
 
   Future<void> removeWatched(int id) async {

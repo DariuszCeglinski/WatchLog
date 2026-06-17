@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:watchlog/models/show.dart';
+import 'package:watchlog/screens/episodes_screen.dart';
 import 'package:watchlog/services/database_service.dart';
 
 class DetailsScreen extends StatefulWidget {
@@ -205,14 +206,22 @@ class _DetailsScreen extends State<DetailsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 FilledButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => EpisodesScreen(showId: show.id)
+                      )
+                    ).then((_) {
+                      setState(() {});
+                    });
+                  },
                   child: const Text("Zobacz odcinki"),
                 ),
                 const SizedBox(width: 20),
                 FilledButton(
                   onPressed: () {
                     int dialogRating = myRating;
-
                     showDialog(
                       context: context,
                       builder: (context) {
@@ -272,7 +281,6 @@ class _DetailsScreen extends State<DetailsScreen> {
                             FilledButton(
                                 onPressed: () async {
                                   await database.saveReview(show.id, dialogRating, controller.text);
-
                                   if (!mounted) return;
 
                                   setState(() {

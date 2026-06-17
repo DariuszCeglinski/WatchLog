@@ -30,7 +30,7 @@ class _ShowCard extends State<ShowCard> {
           MaterialPageRoute(
             builder: (_) => DetailsScreen(show: show),
           )
-        ).then((x) {
+        ).then((_) {
           setState(() {});
           widget.onChanged?.call();
         });
@@ -137,9 +137,7 @@ class _ShowCard extends State<ShowCard> {
                       const SizedBox(width: 4),
                       Text(
                         "${show.rating}",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
                     const Spacer(),
@@ -170,6 +168,7 @@ class _ShowCard extends State<ShowCard> {
                         }
 
                         setState(() {});
+                        widget.onChanged?.call();
                       },
                       child: Icon(
                         isWatchlist ? Icons.bookmark : Icons.bookmark_border,

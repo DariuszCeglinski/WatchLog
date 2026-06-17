@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:watchlog/services/tvmaze_service.dart';
+import 'package:watchlog/widgets/episode_card.dart';
 import 'package:watchlog/widgets/show_card.dart';
 
 class ToWatchScreen extends StatefulWidget {
@@ -21,20 +22,21 @@ class _ToWatchScreen extends State<ToWatchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Future<void> refresh() async {
+      setState(() {
+        _initializeFuture = _service.initialize();
+      });
+    }
+
     return SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SearchBar(
-                hintText: "Wyszukaj serial do obejrzenia",
-                leading: const Icon(Icons.search),
-                elevation: const WidgetStatePropertyAll(0),
-              ),
               const SizedBox(height: 10),
               const Text(
-                "Obejrz serial",
+                "Seriale do obejrzenia",
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -65,7 +67,7 @@ class _ToWatchScreen extends State<ToWatchScreen> {
                             scrollDirection: Axis.horizontal,
                             itemCount: shows.length,
                             itemBuilder: (context, index) {
-                              return ShowCard(show: shows[index]);
+                              return ShowCard(show: shows[index], onChanged: refresh);
                             },
                           );
                         },
@@ -75,7 +77,7 @@ class _ToWatchScreen extends State<ToWatchScreen> {
               ),
               const SizedBox(height: 10),
               const Text(
-                "Obejrz odcinek",
+                "Odcinki do obejrzenia",
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -91,23 +93,23 @@ class _ToWatchScreen extends State<ToWatchScreen> {
                       }
 
                       return FutureBuilder(
-                          future: _service.getPopularShows(),
+                          future: _service.getWatchlistEpisodes(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState != ConnectionState.done) {
                               return const Center(child: CircularProgressIndicator());
                             }
 
-                            final shows = snapshot.data!;
+                            final episodes = snapshot.data!;
 
-                            if (shows.isEmpty) {
+                            if (episodes.isEmpty) {
                               return const Center(child: Text('Brak odcinków dodanych do obejrzenia'));
                             }
 
                             return ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              itemCount: shows.length,
+                              itemCount: episodes.length,
                               itemBuilder: (context, index) {
-                                return ShowCard(show: shows[index]);
+                                return EpisodeCard(episode: episodes[index], onChanged: refresh);
                               },
                             );
                           }
